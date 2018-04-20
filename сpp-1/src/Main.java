@@ -1,54 +1,73 @@
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Button;
 
+/**
+ * Program for checking leap-year.
+ * @author MossyChuck
+ *
+ */
 public class Main {
-
-    public static void main(String[] args) {
+    /**
+     * Main method. Builds GUI.
+     * @param args CL parameters
+     */
+    public static void main(final String[] args) {
         new Main().build();
     }
 
-    Label label1;
-    Label answerLabel;
-    Text textField;
+    private Label yearLabel;
+    private Label answerLabel;
+    private Text textField;
+    private Label dayInYearLabel;
+    private static final int DAY_IN_YEAR_LABEL_WIDTH = 130;
+    private static final int BUTTON_WIDTH = 100;
+    private static final int ANSWER_LABEL_WIDTH = 100;
 
-
+    /**
+     * Builds GUI.
+     */
     public void build() {
         Display display = new Display();
 
         Shell mainShell = new Shell(display);
-        // the layout manager handle the layout
-        // of the widgets in the container
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;
         mainShell.setLayout(layout);
         Composite composite = new Composite(mainShell, SWT.LEFT);
         composite.setLayout(new RowLayout());
 
-        // Shell can be used as container
-        label1 = new Label(composite, SWT.PUSH);
-        label1.setText("Год ");
+        yearLabel = new Label(composite, SWT.PUSH);
+        yearLabel.setText("Год ");
         textField = new Text(composite, SWT.BORDER);
-        Label label2 = new Label(mainShell, SWT.PUSH);
-        label2.setText("Количество дней: 365");
+        Composite dayInYearLabelComposite = new Composite(mainShell, SWT.LEFT);
+        dayInYearLabelComposite.setLayout(new GridLayout());
+        GridData gdDayInYearLabel = new GridData(GridData.FILL_BOTH);
+        gdDayInYearLabel.widthHint = DAY_IN_YEAR_LABEL_WIDTH;
+        dayInYearLabel = new Label(dayInYearLabelComposite, SWT.PUSH);
+        dayInYearLabel.setText("Количество дней: ?");
+        dayInYearLabel.setLayoutData(gdDayInYearLabel);
         Composite buttonComposite = new Composite(mainShell, SWT.LEFT);
         buttonComposite.setLayout(new GridLayout());
         GridData gdButton = new GridData(GridData.FILL_BOTH);
-        gdButton.widthHint = 100;
+        gdButton.widthHint = BUTTON_WIDTH;
         Button button = new Button(buttonComposite, SWT.PUSH);
         button.setLayoutData(gdButton);
         button.setText("Проверить");
-        button.setSize(1000, 10);
         Composite answerLabelComposite = new Composite(mainShell, SWT.LEFT);
         answerLabelComposite.setLayout(new GridLayout());
         GridData gdAnswerLabel = new GridData(GridData.FILL_BOTH);
-        gdAnswerLabel.widthHint = 100;
+        gdAnswerLabel.widthHint = ANSWER_LABEL_WIDTH;
         answerLabel = new Label(answerLabelComposite, SWT.PUSH);
         answerLabel.setText("Високосный: ?");
         answerLabel.setLayoutData(gdAnswerLabel);
@@ -57,6 +76,9 @@ public class Main {
         //register listener for the selection event
         button.addSelectionListener(new ButtonSelectionListener());
 
+        Button clearButton = new Button(mainShell, SWT.PUSH);
+        clearButton.setText("Clear");
+        clearButton.addSelectionListener(new ClearButtonSelectionListener());
         // set widgets size to their preferred size
         mainShell.pack();
         mainShell.open();
@@ -67,20 +89,43 @@ public class Main {
         }
         display.dispose();
     }
+    
+    class ClearButtonSelectionListener implements SelectionListener{
 
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			textField.setText("");
+			
+		}
 
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    }
+
+    /**
+     * Inner class for button SelectionListener.
+     * @author MossyChuck
+     *
+     */
     class ButtonSelectionListener implements SelectionListener {
 
+        /**
+         * Button click event handler.
+         */
         @Override
-        public void widgetSelected(SelectionEvent e) {
-            // TODO Auto-generated method stub
+        public void widgetSelected(final SelectionEvent e) {
             try {
                 int year = Integer.parseInt(textField.getText());
-
-                if ((year % 400 == 0) || (year % 100 != 0 && year % 4 == 0)) {
+                if (checkYear(year)) {
                     answerLabel.setText("Високосный: да");
+                    dayInYearLabel.setText("Количество дней: 366");
                 } else {
                     answerLabel.setText("Високосный: нет");
+                    dayInYearLabel.setText("Количество дней: 365");
                 }
 
             } catch (NumberFormatException exception) {
@@ -89,9 +134,25 @@ public class Main {
 
         }
 
+        private static final int CHECK_1 = 400;
+        private static final int CHECK_2 = 100;
+        private static final int CHECK_3 = 4;
+
+        /**
+         * Checks year for leap-year.
+         * @param year year for check
+         * @return true if year is leap-year, false if not
+         */
+        public boolean checkYear(final int year) {
+            return (year % CHECK_1 == 0)
+                    || (year % CHECK_2 != 0 &&  year % CHECK_3 == 0);
+        }
+
+        /**
+         * Default handler (Not used?).
+         */
         @Override
-        public void widgetDefaultSelected(SelectionEvent e) {
-            // TODO Auto-generated method stub
+        public void widgetDefaultSelected(final SelectionEvent e) {
 
         }
 
